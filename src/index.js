@@ -6,6 +6,7 @@
 'use strict';
 
 var driver = require('ruff-driver');
+var mdelay = driver.mdelay;
 
 module.exports = driver({
     attach: function (inputs) {
@@ -19,8 +20,7 @@ module.exports = driver({
                 try {
                     // read first and throw it;
                     that._i2c.readBytes(0x20, 2);
-                    // eslint-disable-next-line no-undef
-                    uv.mdelay(180);
+                    mdelay(180);
                     // reference to datasheet: bh1750fvi-e.pdf
                     var data = that._i2c.readBytes(0x20, 2);
                     var value = Math.floor(((data[0] << 8) + (data[1] & 0xFF)) / 1.2);

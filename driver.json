@@ -1,5 +1,7 @@
 {
-    "models": ["GY-30"],
+    "models": [
+        "GY-30"
+    ],
     "inputs": {
         "i2c": {
             "type": "i2c",

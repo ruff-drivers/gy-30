@@ -30,7 +30,7 @@ rap device add <device-id>
 This driver provides you the illuminance of light sensor.
 
 ```js
-$('#<device-id>').getIlluminance(function(error, value) {
+$('#<device-id>').getIlluminance(function (error, value) {
         console.log(value);
     });
 ```
