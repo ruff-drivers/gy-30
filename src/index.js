@@ -14,20 +14,16 @@ module.exports = driver({
     },
 
     exports: {
-        getIlluminance: function (handler) {
+        getIlluminance: function (callback) {
             var that = this;
-            setImmediate(function () {
-                try {
-                    // read first and throw it;
-                    that._i2c.readBytes(0x20, 2);
-                    mdelay(180);
-                    // reference to datasheet: bh1750fvi-e.pdf
-                    var data = that._i2c.readBytes(0x20, 2);
+            // One Time H-Resolution Mode, measurement at 1lx resolution.
+            that._i2c.writeByte(-1, 0x20, function () {
+                mdelay(180);
+                // reference to datasheet: bh1750fvi-e.pdf
+                that._i2c.readBytes(-1, 2, function (error, data) {
                     var value = Math.floor(((data[0] << 8) + (data[1] & 0xFF)) / 1.2);
-                    handler(undefined, value);
-                } catch (error) {
-                    handler(error);
-                }
+                    callback(error, value);
+                });
             });
         }
     }
