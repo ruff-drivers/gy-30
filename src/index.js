@@ -10,7 +10,7 @@ var mdelay = driver.mdelay;
 
 module.exports = driver({
     attach: function (inputs) {
-        this._i2c = inputs.getRequired('i2c');
+        this._i2c = inputs['i2c'];
     },
 
     exports: {

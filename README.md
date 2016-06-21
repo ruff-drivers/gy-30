@@ -10,7 +10,7 @@ Light Intensity Sensor driver with I2C interface.
 
 ## Supported Models
 
-- [GY-30](https://rap.ruff.io/devices/GY-30)
+- [gy-30](https://rap.ruff.io/devices/gy-30)
 
 ## Installing
 
@@ -22,7 +22,7 @@ Execute following command and enter a **supported model** to install.
 rap device add <device-id>
 
 # Then enter a supported model, for example:
-# ? model: GY-30
+# ? model: gy-30
 ```
 
 ## Usage

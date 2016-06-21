@@ -1,6 +1,6 @@
 {
   "name": "gy-30",
-  "version": "2.0.2",
+  "version": "3.0.0",
   "description": "Digital illuminance intensity sensor driver with I2C interface.",
   "author": "Nanchao Inc.",
   "license": "MIT",
