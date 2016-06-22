@@ -50,6 +50,12 @@ $('#<device-id>').getIlluminance(function (error, value) {
 
 ## API References
 
+### Properties
+
+#### `highResolution`
+
+A boolean indicates whether to use high resolution (1lx) mode.
+
 ### Methods
 
 #### `getIlluminance(callback)`

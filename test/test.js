@@ -1,35 +1,105 @@
 'use strict';
 
 var assert = require('assert');
-var path = require('path');
-var when = require('ruff-mock').when;
+var mock = require('ruff-mock');
 
-var driverPath = path.join(__dirname, '..');
-var driverRunner = require('ruff-driver-runner');
+var any = mock.any;
+var mockAny = mock.mockAny;
+var when = mock.when;
+
+var ONE_TIME_H_RESOLUTION_MODE = 0x20;
+var ONE_TIME_L_RESOLUTION_MODE = 0x23;
+
+var MEASUREMENT_ACCURACY = 1.2;
+
+var Device = require('../');
 
 require('t');
 
 describe('Driver for illuminance intensity sensor with I2C', function () {
-    var light;
+    var sensor;
     var i2c;
 
-    before(function (done) {
-        driverRunner.run(driverPath, function (device, context) {
-            light = device;
-            i2c = context.arg('i2c');
-            done();
-        });
+    before(function () {
+        i2c = mockAny();
+
+        var inputs = {
+            i2c: i2c
+        };
+
+        var context = {
+            args: {
+                highResolution: true
+            }
+        };
+
+        sensor = new Device(inputs, context);
     });
 
-    it('should get illuminance', function (done) {
-        when(i2c).readBytes(0x20, 2).thenReturn([0x01, 0x02]);
-        light.getIlluminance(function (error, value) {
+    it('should get illuminance in high resolution mode', function (done) {
+        var expectedValue = 215;
+
+        when(i2c)
+            .writeByte(any, any, any)
+            .then(function (command, code, callback) {
+                assert.equal(command, -1);
+                assert.equal(code, ONE_TIME_H_RESOLUTION_MODE);
+                callback();
+            });
+
+        when(i2c)
+            .readBytes(any, any, any)
+            .then(function (command, total, callback) {
+                assert.equal(command, -1);
+                assert.equal(total, 2);
+
+                var value = expectedValue * MEASUREMENT_ACCURACY;
+
+                callback(undefined, [value >> 8, value & 0xff]);
+            });
+
+        sensor.getIlluminance(function (error, value) {
             if (error) {
                 done(error);
                 return;
             }
 
-            assert.equal(value, 215);
+            assert.equal(value, expectedValue);
+            done();
+        });
+    });
+
+    it('should get illuminance in low resolution mode', function (done) {
+        var expectedValue = 215;
+
+        sensor.highResolution = false;
+
+        when(i2c)
+            .writeByte(any, any, any)
+            .then(function (command, code, callback) {
+                assert.equal(command, -1);
+                assert.equal(code, ONE_TIME_L_RESOLUTION_MODE);
+                callback();
+            });
+
+        when(i2c)
+            .readBytes(any, any, any)
+            .then(function (command, total, callback) {
+                assert.equal(command, -1);
+                assert.equal(total, 2);
+
+                var value = expectedValue * MEASUREMENT_ACCURACY;
+
+                callback(undefined, [value >> 8, value & 0xff]);
+            });
+
+        sensor.getIlluminance(function (error, value) {
+            if (error) {
+                done(error);
+                return;
+            }
+
+            assert.equal(value, expectedValue);
             done();
         });
     });
