@@ -5,26 +5,63 @@
 
 'use strict';
 
+var async = require('ruff-async');
 var driver = require('ruff-driver');
-var mdelay = driver.mdelay;
+
+var Queue = async.Queue;
+
+var ONE_TIME_H_RESOLUTION_MODE = 0x20;
+var ONE_TIME_L_RESOLUTION_MODE = 0x23;
+
+var H_RESOLUTION_MEASUREMENT_TIME = 180;
+var L_RESOLUTION_MEASUREMENT_TIME = 24;
 
 module.exports = driver({
-    attach: function (inputs) {
+    attach: function (inputs, context) {
         this._i2c = inputs['i2c'];
-    },
+        this._highResolution = context.args.highResolution;
 
+        this._queue = new Queue(this._getIlluminanceHandler);
+    },
     exports: {
-        getIlluminance: function (callback) {
-            var that = this;
-            // One Time H-Resolution Mode, measurement at 1lx resolution.
-            that._i2c.writeByte(-1, 0x20, function () {
-                mdelay(180);
-                // reference to datasheet: bh1750fvi-e.pdf
-                that._i2c.readBytes(-1, 2, function (error, data) {
-                    var value = Math.floor(((data[0] << 8) + (data[1] & 0xFF)) / 1.2);
-                    callback(error, value);
+        _getIlluminanceHandler: function (highResolution, callback) {
+            var i2c = this._i2c;
+
+            var code;
+            var delay;
+
+            if (highResolution) {
+                code = ONE_TIME_H_RESOLUTION_MODE;
+                delay = H_RESOLUTION_MEASUREMENT_TIME;
+            } else {
+                code = ONE_TIME_L_RESOLUTION_MODE;
+                delay = L_RESOLUTION_MEASUREMENT_TIME;
+            }
+
+            async.series([
+                i2c.writeByte.bind(i2c, -1, code),
+                function (next) {
+                    setTimeout(next, delay);
+                }
+            ], function (error) {
+                if (error) {
+                    callback(error);
+                    return;
+                }
+
+                i2c.readBytes(-1, 2, function (error, values) {
+                    if (error) {
+                        callback(error);
+                        return;
+                    }
+
+                    var value = Math.floor((values[0] << 8 | values[1]) / 1.2);
+                    callback(undefined, value);
                 });
             });
+        },
+        getIlluminance: function (callback) {
+            this._queue.push(this, [this._highResolution], callback);
         }
     }
 });

@@ -6,7 +6,7 @@ Light Intensity Sensor driver with I2C interface.
 
 ## Supported Engines
 
-* Ruff: 1.2.0
+* Ruff: ~1.2.0
 
 ## Supported Models
 
@@ -23,7 +23,15 @@ rap device add <device-id>
 
 # Then enter a supported model, for example:
 # ? model: gy-30
+# ? value (boolean) for argument "highResolution": (Y/n)
 ```
+
+### Arguments
+
+#### `highResolution`
+
+A boolean indicates whether to use high resolution (1lx) mode, defaults to `true`, otherwise will use low resolution (4lx) mode.
+The measurement time for high resolution mode is 180 ms, while for low resolution mode it's 24 ms.
 
 ## Usage
 
@@ -31,8 +39,13 @@ This driver provides you the illuminance of light sensor.
 
 ```js
 $('#<device-id>').getIlluminance(function (error, value) {
-        console.log(value);
-    });
+    if (error) {
+        console.error(error);
+        return;
+    }
+
+    console.log('illuminance', value);
+});
 ```
 
 ## API References
@@ -40,8 +53,8 @@ $('#<device-id>').getIlluminance(function (error, value) {
 ### Methods
 
 #### `getIlluminance(callback)`
-The callback get error and value as its arguments.
-If it failed to read, the error will carry message.
+
+The callback gets error and value as its arguments.
 
 - **callback:** the callback.
 
