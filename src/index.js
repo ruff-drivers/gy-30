@@ -75,7 +75,6 @@ module.exports = driver({
     attach: function (inputs, context) {
         this._i2c = inputs['i2c'];
         this._highResolution = context.args.highResolution;
-
         this._queue = new Queue(this._getIlluminanceHandler);
     },
     exports: prototype
