@@ -48,6 +48,10 @@ $('#<device-id>').getIlluminance(function (error, value) {
 });
 ```
 
+## FAQ
+
+The method `getIlluminance` may consume about 250ms, if you wanted invoke `getIlluminance` periodically, you'd better set the time interval to at least 250ms.
+
 ## API References
 
 ### Properties
