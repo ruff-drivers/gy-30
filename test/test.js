@@ -4,7 +4,6 @@ var assert = require('assert');
 var mock = require('ruff-mock');
 
 var any = mock.any;
-var mockAny = mock.mockAny;
 var when = mock.when;
 
 var ONE_TIME_H_RESOLUTION_MODE = 0x20;
@@ -21,7 +20,7 @@ describe('Driver for illuminance intensity sensor with I2C', function () {
     var i2c;
 
     before(function () {
-        i2c = mockAny();
+        i2c = mock();
 
         var inputs = {
             i2c: i2c
